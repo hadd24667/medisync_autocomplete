@@ -1,0 +1,47 @@
+version: '3.9'
+
+services:
+  postgres:
+    image: ankane/pgvector:latest
+    container_name: medisync-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 12345678
+      POSTGRES_DB: medisync
+    volumes:
+      - medisync_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - medisync-net
+
+  redis:
+    image: redis:latest
+    container_name: medisync-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    networks:
+      - medisync-net
+
+volumes:
+  medisync_data:
+  redis_data:
+
+networks:
+  medisync-net:
+    driver: bridge
