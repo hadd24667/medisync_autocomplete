@@ -108,6 +108,75 @@ def expand_routes(routes):
                 out.add(k)
     return sorted(list(out))
 
+# -------- Dose extractor --------
+def extract_doses(forms):
+    """
+    Extract dose from forms:
+    - 1.25mg / 2.5mg
+    - 1g → 1000mg
+    - 12 mcg / 200mcg
+    - 1% / 0.1%
+    - IU / iu / ui
+    """
+    doses = set()
+
+    for f in forms:
+        f = normalize(f)
+
+        # --- 1) mg including decimals ---
+        mg = re.findall(r'(\d+(?:\.\d+)?)\s*mg', f)
+        for x in mg:
+            doses.add(f"{x}mg")
+            doses.add(x)
+
+            # add integer mg version if decimal
+            try:
+                mg_int = str(int(float(x)))
+                doses.add(f"{mg_int}mg")
+                doses.add(mg_int)
+            except:
+                pass
+
+        # --- 2) gram → convert to mg ---
+        g = re.findall(r'(\d+(?:\.\d+)?)\s*g', f)
+        for x in g:
+            mg_val = int(float(x) * 1000)
+            doses.add(f"{mg_val}mg")
+            doses.add(str(mg_val))
+            doses.add(x)
+
+        # --- 3) mcg → keep as mcg ---
+        mcg = re.findall(r'(\d+(?:\.\d+)?)\s*mcg', f)
+        for x in mcg:
+            doses.add(f"{x}mcg")
+            doses.add(x)
+
+        # --- 4) % (nồng độ) ---
+        percent = re.findall(r'(\d+(?:\.\d+)?)\s*%', f)
+        for x in percent:
+            doses.add(f"{x}%")
+            doses.add(x)
+
+        # --- 5) IU / iu / ui ---
+        iu = re.findall(r'(\d+(?:\.\d+)?)\s*(?:iu|ui)', f)
+        for x in iu:
+            doses.add(f"{x}iu")
+            doses.add(x)
+
+        # --- 6) “x/lieu”, ví dụ 100 mcg/lieu ---
+        per_dose = re.findall(r'(\d+(?:\.\d+)?)\s*(?:mcg|mg)/lieu', f)
+        for x in per_dose:
+            doses.add(x)
+
+        # --- 7) số đứng riêng (nhưng chỉ nếu gắn liền form) ---
+        standalone_num = re.findall(r'\b(\d+(?:\.\d+)?)\b', f)
+        for x in standalone_num:
+            # tránh lấy mã số không liên quan
+            if "." in x or len(x) <= 4: 
+                doses.add(x)
+
+    return sorted(doses)
+
 
 # ============================================
 # Build synonyms
@@ -131,22 +200,6 @@ def build_synonyms(row):
         if len(b) > 4:
             syn.add(b[:4])
             syn.add(b[:5])
-
-    # forms + dose
-    for f in row["forms_clean"]:
-        f_norm = normalize(f)
-        syn.add(f_norm)
-
-        strength = normalize_strength(f_norm)
-        if strength:
-            syn.add(strength)
-            digits = re.findall(r"\d+", strength)
-            for d in digits:
-                syn.add(d)
-
-    # routes
-    for r in expand_routes(row["routes"]):
-        syn.add(r)
 
     # aliases
     for a in row["aliases"]:
@@ -173,6 +226,7 @@ def generate_synonym_file(csv_path, output_path="atc_synonyms_meta.json"):
                 "brand": set(),
                 "forms": set(),
                 "routes": set(),
+                "doses": set(),
                 "drug_class": set(),
                 "risk_tags": set(),
                 "contraindications": set(),
@@ -253,6 +307,7 @@ def generate_synonym_file(csv_path, output_path="atc_synonyms_meta.json"):
             "brand": merged_row["brand_clean"],
             "forms": merged_row["forms_clean"],
             "routes": merged_row["routes"],
+            "doses": extract_doses(merged_row["forms_clean"]),
             "drug_class": drug_class,
             "risk_tags": sorted(data["risk_tags"]),
             "contraindications": sorted(data["contraindications"]),

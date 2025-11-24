@@ -1,0 +1,5 @@
+simcse_onnx/
+*.onnx
+*.pt
+*.bin
+lgbm_atc_ranker.txt

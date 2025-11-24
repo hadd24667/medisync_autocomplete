@@ -1,8 +1,17 @@
 # ======================================================
-# SMARTEMR — RANKER TRAIN PAIRS GENERATOR (v3)
+# SMARTEMR — RANKER TRAIN PAIRS GENERATOR (v5)
 # ------------------------------------------------------
-# Chống nhiễu dose (500mg), ưu tiên query dạng thực tế:
-# "para 500", "paracetamol 500mg", "hapacol 500"
+# Chỉ sinh:
+#   - synonyms
+#   - brand
+#   - inn
+#   - (brand + dose)
+#   - (inn + dose)
+#
+# KHÔNG sinh:
+#   - dose alone
+#   - form / route
+#   - form+dose / route+dose
 # ======================================================
 
 import json
@@ -14,85 +23,87 @@ from collections import Counter
 ATC_FILE = "atc_synonyms_meta.json"
 OUT_FILE = "train_pairs.csv"
 
-# Số query / ATC
 QUERIES_PER_ATC = 10
-NEG_PER_QUERY = 8
+NEG_PER_QUERY   = 8
+
 
 def norm(x):
     return unidecode(x.lower().strip()) if isinstance(x, str) else ""
 
-def extract_doses(forms):
-    doses = []
-    for f in forms:
-        f = norm(f)
-        parts = f.split()
-        for p in parts:
-            if p.endswith("mg") or p.endswith("g"):
-                doses.append(p)
-                # “500mg” → “500”
-                if p[:-2].isdigit():
-                    doses.append(p[:-2])
-    return doses
+def is_clean_synonym(s):
+    # loại nếu chứa số (dose, hoàn toàn không dùng trong synonyms)
+    return not any(ch.isdigit() for ch in s)
+
 
 def extract_queries(meta, dose_freq):
-    """
-    Sinh query theo thứ tự ưu tiên:
-    1. synonyms
-    2. brand
-    3. inn
-    4. dose kết hợp INN/brand (không sinh đơn độc)
-    """
     qs = set()
 
-    # 1. synonyms
+    # --------------------------------------------------
+    # 1) synonyms
+    # --------------------------------------------------
     for s in meta.get("synonyms", []):
-        s2 = norm(s)
-        if len(s2) >= 3:
-            qs.add(s2)
+        s = norm(s)
+        if not is_clean_synonym(s):
+            continue
+        if len(s) >= 3:
+            qs.add(s)
+        if len(s) >= 4:
+            qs.add(s[:4])
 
-    # 2. brand
-    for b in meta.get("brand", []):
-        b2 = norm(b)
-        if len(b2) >= 3:
-            qs.add(b2)
+    # --------------------------------------------------
+    # 2) brand
+    # --------------------------------------------------
+    brands = [norm(b) for b in meta.get("brand", [])]
+    for b in brands:
+        if len(b) >= 3:
+            qs.add(b)
+        if len(b) >= 4:
+            qs.add(b[:4])
 
-    # 3. INN expansions
-    if isinstance(meta.get("inn"), str):
-        for part in meta["inn"].split(","):
-            p = norm(part)
-            if len(p) >= 4:
-                qs.add(p)
-
-    # 4. Dose combination
-    doses = extract_doses(meta.get("forms", []))
+    # --------------------------------------------------
+    # 3) INN parts
+    # --------------------------------------------------
     inn_parts = []
     if isinstance(meta.get("inn"), str):
-        inn_parts = [norm(x) for x in meta["inn"].split(",")]
+        for p in meta["inn"].split(","):
+            p = norm(p)
+            inn_parts.append(p)
 
-    brands = [norm(x) for x in meta.get("brand", [])]
+            if len(p) >= 4:
+                qs.add(p)
+                qs.add(p[:4])
+
+    # --------------------------------------------------
+    # 4) brand + dose, inn + dose
+    # --------------------------------------------------
+    doses = meta.get("doses", [])
 
     for d in doses:
-        # Bỏ dose phổ biến gây nhiễu (xuất hiện trong nhiều ATC)
+        # Loại dose xuất hiện quá nhiều → gây nhiễu
         if dose_freq[d] > 8:
             continue
 
-        # Chỉ sinh dạng kết hợp, không sinh "500", "500mg"
+        # --- Brand + Dose ---
+        for b in brands:
+            qs.add(f"{b} {d}")
+            if len(b) >= 4:
+                qs.add(f"{b[:4]} {d}")
+
+        # --- INN + Dose ---
         for inn in inn_parts:
             qs.add(f"{inn} {d}")
-            # dạng bác sĩ hay gõ “para 500”
             if len(inn) >= 4:
                 qs.add(f"{inn[:4]} {d}")
-
-        for brand in brands:
-            qs.add(f"{brand} {d}")
 
     qs = list(qs)
     random.shuffle(qs)
     return qs[:QUERIES_PER_ATC]
 
+
 def pick_neg(all_codes, true_code, k):
     cand = [c for c in all_codes if c != true_code]
     return random.sample(cand, k) if len(cand) >= k else random.choices(cand, k)
+
 
 def generate_pairs():
     with open(ATC_FILE, "r", encoding="utf-8") as f:
@@ -100,17 +111,17 @@ def generate_pairs():
 
     codes = list(data.keys())
 
-    # Đếm tần suất dose để loại dose gây nhiễu
-    dose_counter = Counter()
+    # Count dose frequency to filter dose noise
+    dose_freq = Counter()
     for code, meta in data.items():
-        ds = extract_doses(meta.get("forms", []))
-        dose_counter.update(ds)
+        doses = meta.get("doses", [])
+        dose_freq.update(doses)
 
     rows = []
     gid = 0
 
     for code, meta in data.items():
-        queries = extract_queries(meta, dose_counter)
+        queries = extract_queries(meta, dose_freq)
 
         for q in queries:
             rows.append(dict(group_id=gid, query=q, atc_code=code, label=1))
@@ -123,8 +134,9 @@ def generate_pairs():
     df = pd.DataFrame(rows)
     df.to_csv(OUT_FILE, index=False, encoding="utf-8")
 
-    print(f"✓ DONE — {len(df)} samples → {OUT_FILE}")
-    print(f"Total groups: {df['group_id'].nunique()}")
+    print("✓ DONE — train_pairs.csv generated!")
+    print("Total samples:", len(df))
+    print("Total groups:", df["group_id"].nunique())
 
 
 if __name__ == "__main__":
