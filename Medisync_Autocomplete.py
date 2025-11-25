@@ -129,50 +129,54 @@ def _choose_canonical_inn(inn_raw: str) -> str:
     # chọn cái ngắn nhất
     return min(cleaned, key=len)
 
-
 def choose_display_name(code: str, matched_syn: str | None, meta: dict) -> str:
-    """
-    Chọn tên hiển thị động cho 1 kết quả ATC.
-
-    - Nếu có matched_syn và có trong synonym_profiles:
-        + source = 'inn'  → hiển thị chính inn đó
-        + source = 'brand'→ hiển thị Brand (InnCanonical)
-        + source = 'code' → rơi về canonical
-    - Nếu không có matched_syn → dùng canonical inn.
-    """
     inn_raw = meta.get("inn_raw") or ""
+    brands_orig = meta.get("brand_names") or []
     profiles = meta.get("synonym_profiles") or {}
+    print("[DEBUG] choose_display_name:")
+    print(repr(inn_raw), repr(brands_orig))
+
+    def _cap_first(s: str) -> str:
+        if not s:
+            return s
+        return s[0].upper() + s[1:]
+
+    # Chuẩn hoá lại case cho INN + brand để hiển thị
+    inn_disp = _cap_first(inn_raw)
+    brands_disp = [_cap_first(b) for b in brands_orig]
 
     # chuẩn hoá matched_syn
     key = None
     if matched_syn:
         key = unidecode(matched_syn.lower().strip())
 
+    # Nếu synonym match → chỉ dùng để chọn canonical,
+    # KHÔNG dùng value trong profile (vì đó là bản clean)
     if key and key in profiles:
-        prof = profiles[key]
-        source = prof.get("source")
-        value = prof.get("value") or ""
+        source = profiles[key].get("source")
 
-        inn_canon = _choose_canonical_inn(inn_raw)
-
+        # Nếu match brand → hiển thị Brand (INN gốc)
         if source == "brand":
-            # ví dụ: "Efferalgan (Paracetamol)"
-            if inn_canon:
-                return f"{value} ({inn_canon})"
-            return value or inn_canon or code
+            if brands_disp:
+                # ví dụ matched_syn = 'pana' → Panadol (Paracetamol)
+                candidates = [b for b in brands_disp if key in unidecode(b.lower())]
+                brand_show = candidates[0] if candidates else brands_disp[0]
+                return f"{brand_show} ({inn_disp})"
+            return inn_disp or code
 
+        # Nếu match inn → dùng INN đã chuẩn hóa hoa/thường
         if source == "inn":
-            # ví dụ: "Paracetamol" / "Acetaminophen"
-            return value or inn_canon or code
+            return inn_disp or code
 
-        # source == "code" hoặc gì đó khác → fallback
-        if inn_canon:
-            return inn_canon
-        return value or code
+        # Nếu profile 'code' → fallback canonical
+        return inn_disp or code
 
-    # Không có matched_syn hoặc không tìm được profile → canonical cố định
-    inn_canon = _choose_canonical_inn(inn_raw)
-    return inn_canon or meta.get("label") or code
+    # Không có synonym match → bản gốc (INN + brand) đã chuẩn hoá case
+    if brands_disp:
+        return f"{inn_disp} ({', '.join(brands_disp)})"
+
+    return inn_disp or code
+
 
 # ============================================
 # 2. CORE ENGINE
@@ -505,6 +509,7 @@ class Tier1AutocompleteEngine:
                     "type": t_type,
                     "code": code,
                     "label": display_name,      # tên hiển thị mới
+                    "display_name": display_name,
                     "description": desc,
                     "forms": forms,
                     "display": display,
@@ -753,6 +758,7 @@ def load_atc_terms(engine, atc_meta_by_code):
             "synonyms": synonyms,
             "synonym_profiles": synonym_profiles,
             "inn_raw": inn,
+            "brand_names": brands,
         })
 
     print(f"💊 Loaded ATC terms: {len(all_terms):,}")

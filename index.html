@@ -92,6 +92,8 @@ async function runAutocomplete() {
   );
 
   const data = await res.json();
+  console.log("[FE DEBUG] RAW DATA FROM API:", data);
+  console.log("[FE DEBUG] FIRST RESULT:", data.results?.[0]);
 
   info.innerHTML = `
     ⏱ <b>${data.tier1_latency_ms || data.latency_ms} ms</b> •
@@ -113,10 +115,6 @@ async function runAutocomplete() {
         </div>
 
         <div class="text-gray-800 mt-1">${r.label}</div>
-
-        ${r.forms?.length ?
-          `<div class="text-sm text-gray-600 mt-1">${r.forms.join(", ")}</div>` 
-        : "" }
 
       </li>
     `)

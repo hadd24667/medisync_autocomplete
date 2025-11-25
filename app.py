@@ -12,6 +12,9 @@ from Medisync_Autocomplete import (
 # Tier-2 (LightGBM Ranker)
 from ranker_engine import rank_candidates
 
+# Tầng form-level cho ATC
+from atc_form_ranker import build_form_level_suggestions
+
 app = Flask(__name__)
 CORS(app)
 
@@ -127,7 +130,7 @@ def api_autocomplete():
         })
 
     # -------------------------
-    # ATC: dùng Tier-2 LightGBM
+    # ATC: dùng Tier-2 LightGBM + form-level
     # -------------------------
     res = autocomplete_atc_with_ranker(
         query=q,
@@ -159,16 +162,45 @@ def api_autocomplete():
             "tier2_used": False,
         })
 
-    # Ngược lại: dùng kết quả Tier-2
+    # Ngược lại: Tier-2 ok → sinh suggestions ở mức form (Viên nén 500 mg, Thuốc đặt 150 mg, ...)
+    form_suggestions = build_form_level_suggestions(
+        query=q,
+        tier2_results=res["tier2_results"],
+        top_k=top_k,
+    )
+
+    # Nếu vì lý do gì đó không sinh được form_suggestions → fallback behaviour cũ
+    if not form_suggestions:
+        final_results = []
+        for r in res["tier2_results"]:
+            final_results.append({
+                "code": r.get("code"),
+                "label": r.get("label") or r.get("display") or "",
+                "forms": r.get("forms") or [],
+                "routes": r.get("routes") or [],
+                "type": r.get("type", "ATC"),
+                "score": float(r.get("ranker_score", 0.0)),
+            })
+        return jsonify({
+            "query": q,
+            "mode": mode,
+            "results": final_results,
+            "tier1_source": t_source,
+            "tier1_latency_ms": t_latency,
+            "tier2_used": True,
+        })
+
+    # Trường hợp chuẩn: dùng form-level suggestions
     final_results = []
-    for r in res["tier2_results"]:
+    for v in form_suggestions:
         final_results.append({
-            "code": r.get("code"),
-            "label": r.get("label") or r.get("display") or "",
-            "forms": r.get("forms") or [],
-            "routes": r.get("routes") or [],
-            "type": r.get("type", "ATC"),
-            "score": float(r.get("ranker_score", 0.0)),
+            "code": v.get("code"),
+            "label": v.get("label") or "",
+            # để UI không bị vỡ, vẫn trả về 'forms' dạng list nhưng chỉ chứa đúng 1 form
+            "forms": [v.get("form")] if v.get("form") else [],
+            "routes": [],  # hiện tại không dùng route
+            "type": v.get("type", "ATC"),
+            "score": float(v.get("score", 0.0)),
         })
 
     return jsonify({
