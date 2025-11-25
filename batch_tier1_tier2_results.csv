@@ -1,0 +1,94 @@
+query,tier,rank,code,display,forms,score,tier1_source,tier1_latency_ms
+para 500,tier2,1,N02BE01,"N02BE01 – paracetamol [Viên nén 500 mg, Viên nén 650 mg, Hỗn dịch uống 120 mg/5 ml]",Viên nén 500 mg|Viên nén 650 mg|Hỗn dịch uống 120 mg/5 ml,1.168246723068483,mpm,5.52
+para 500,tier2,2,N02BE01,"N02BE01 – paracetamol [Viên nén 500 mg, Thuốc tiêm truyền 10 mg/ml]",Viên nén 500 mg|Thuốc tiêm truyền 10 mg/ml,1.168246723068483,mpm,5.52
+para 500,tier2,3,N02BE01,"N02BE01 – paracetamol [Thuốc đặt 80 mg, Thuốc đặt 150 mg, Thuốc đặt 300 mg]",Thuốc đặt 80 mg|Thuốc đặt 150 mg|Thuốc đặt 300 mg,1.168246723068483,mpm,5.52
+para 500,tier2,4,M03BB03,"M03BB03 – CHLORZOXAZONE [Viên nén 250 mg, Viên nén 500 mg]",Viên nén 250 mg|Viên nén 500 mg,-4.652795474279898,mpm,5.52
+para 500,tier2,5,P01AA01,P01AA01 – PAROMOMYCIN [Viên nang],Viên nang,-8.93786420731713,mpm,5.52
+para 500,tier2,6,L01XK04,"L01XK04 – TALAZOPARIB [Viên nang 0.25 mg, Viên nang 1 mg]",Viên nang 0.25 mg|Viên nang 1 mg,-8.942241263560152,mpm,5.52
+para 500,tier2,7,L01XK04,"L01XK04 – TALAZOPARIB [Viên nang 0.25 mg, Viên nang 1 mg]",Viên nang 0.25 mg|Viên nang 1 mg,-8.942241263560152,mpm,5.52
+para 500,tier2,8,L01XK02,L01XK02 – NIRAPARIB [Viên nang 100 mg],Viên nang 100 mg,-9.105640145447436,mpm,5.52
+para 500,tier2,9,L01XK02,L01XK02 – NIRAPARIB [Viên nang 100 mg],Viên nang 100 mg,-9.105640145447436,mpm,5.52
+para 500,tier2,10,L01XK03,"L01XK03 – RUCAPARIB [Viên nén 200 mg, Viên nén 300 mg]",Viên nén 200 mg|Viên nén 300 mg,-9.120104091381808,mpm,5.52
+prctm,tier2,1,N02BE01,"N02BE01 – PARACETAMOL [Viên nén 500 mg, Viên nén 650 mg, Hỗn dịch uống 120 mg/5 ml]",Viên nén 500 mg|Viên nén 650 mg|Hỗn dịch uống 120 mg/5 ml,5.69430112639433,mpm,1.62
+prctm,tier2,2,N02BE01,"N02BE01 – ACETAMINOPHEN [Viên nén 500 mg, Thuốc tiêm truyền 10 mg/ml]",Viên nén 500 mg|Thuốc tiêm truyền 10 mg/ml,5.69430112639433,mpm,1.62
+prctm,tier2,3,N02BE01,"N02BE01 – ACETAMINOPHEN [Thuốc đặt 80 mg, Thuốc đặt 150 mg, Thuốc đặt 300 mg]",Thuốc đặt 80 mg|Thuốc đặt 150 mg|Thuốc đặt 300 mg,5.69430112639433,mpm,1.62
+prctm,tier2,4,N06BX03,"N06BX03 – PIRACETAM [Viên nén 400 mg, Viên nén 800 mg, Viên nén 1200 mg, Thuốc tiêm 200 mg/ml]",Viên nén 400 mg|Viên nén 800 mg|Viên nén 1200 mg|Thuốc tiêm 200 mg/ml,3.666742788716919,mpm,1.62
+prctm,tier2,5,N06BX03,"N06BX03 – PIRACETAM [Viên nén 400 mg, Viên nén 800 mg, Thuốc tiêm 1 g/5 ml]",Viên nén 400 mg|Viên nén 800 mg|Thuốc tiêm 1 g/5 ml,3.666742788716919,mpm,1.62
+prctm,tier2,6,J01CE08,"J01CE08 – BENZATHINE BENZYLPENICILLIN [Bột pha tiêm 1.200.000 IU, Bột pha tiêm 2.400.000 IU]",Bột pha tiêm 1.200.000 IU|Bột pha tiêm 2.400.000 IU,-8.145673791625004,mpm,1.62
+prctm,tier2,7,J01CE08,"J01CE08 – PENICILLIN G BENZATHINE [Bột pha tiêm 600.000 IU, Bột pha tiêm 1.200.000 IU]",Bột pha tiêm 600.000 IU|Bột pha tiêm 1.200.000 IU,-8.145673791625004,mpm,1.62
+prctm,tier2,8,J01CE08,"J01CE08 – BENZATHINE BENZYLPENICILLIN [Bột pha tiêm 1, Bột pha tiêm 2 triệu UI, Bột pha tiêm 2, Bột pha tiêm 4 triệu UI]",Bột pha tiêm 1|Bột pha tiêm 2 triệu UI|Bột pha tiêm 2|Bột pha tiêm 4 triệu UI,-8.145673791625004,mpm,1.62
+prctm,tier2,9,J01CE08,J01CE08 – PROCAINE PENICILLIN [Bột pha tiêm 3.000.000 IU],Bột pha tiêm 3.000.000 IU,-8.145673791625004,mpm,1.62
+prctm,tier2,10,H05AA02,H05AA02 – TERIPARATIDE [Bút tiêm dưới da],Bút tiêm dưới da,-8.715772100018894,mpm,1.62
+efferalgan 150,tier2,1,N02BE01,"N02BE01 – efferalgan (PARACETAMOL) [Viên nén 500 mg, Viên nén 650 mg, Hỗn dịch uống 120 mg/5 ml]",Viên nén 500 mg|Viên nén 650 mg|Hỗn dịch uống 120 mg/5 ml,1.2196344016768703,mpm,0.68
+efferalgan 150,tier2,2,N02BE01,"N02BE01 – efferalgan (ACETAMINOPHEN) [Viên nén 500 mg, Thuốc tiêm truyền 10 mg/ml]",Viên nén 500 mg|Thuốc tiêm truyền 10 mg/ml,1.2196344016768703,mpm,0.68
+efferalgan 150,tier2,3,N02BE01,"N02BE01 – efferalgan (ACETAMINOPHEN) [Thuốc đặt 80 mg, Thuốc đặt 150 mg, Thuốc đặt 300 mg]",Thuốc đặt 80 mg|Thuốc đặt 150 mg|Thuốc đặt 300 mg,1.2196344016768703,mpm,0.68
+efferalgan 150,tier2,4,N06AX16,"N06AX16 – VENLAFAXINE [Viên nén 37.5 mg, Viên nén 75 mg, Viên nén 150 mg (Phóng thích kéo dài)]",Viên nén 37.5 mg|Viên nén 75 mg|Viên nén 150 mg (Phóng thích kéo dài),-2.072734371830843,mpm,0.68
+efferalgan 150,tier2,5,N06AX16,"N06AX16 – VENLAFAXINE [Viên nén 37, Viên nén 5 mg, Viên nén 75 mg, Viên nén 150 mg]",Viên nén 37|Viên nén 5 mg|Viên nén 75 mg|Viên nén 150 mg,-2.072734371830843,mpm,0.68
+efferalgan 150,tier2,6,N06AX16,N06AX16 – VENLAFAXINE [Viên nang giải phóng kéo dài],Viên nang giải phóng kéo dài,-2.072734371830843,mpm,0.68
+efferalgan 150,tier2,7,N06AX16,N06AX16 – VENLAFAXINE/DESVENLAFAXINE [Viên nén (Nhiều hàm lượng)],Viên nén (Nhiều hàm lượng),-2.072734371830843,mpm,0.68
+efferalgan 150,tier2,8,N06AX16,N06AX16 – VENLAFAXINE [Viên nang giải phóng kéo dài],Viên nang giải phóng kéo dài,-2.072734371830843,mpm,0.68
+paracetamol 80mg dat,tier2,1,N02BE01,"N02BE01 – paracetamol [Viên nén 500 mg, Viên nén 650 mg, Hỗn dịch uống 120 mg/5 ml]",Viên nén 500 mg|Viên nén 650 mg|Hỗn dịch uống 120 mg/5 ml,4.402925725568479,mpm-relax,21.77
+paracetamol 80mg dat,tier2,2,N02BE01,"N02BE01 – paracetamol [Viên nén 500 mg, Thuốc tiêm truyền 10 mg/ml]",Viên nén 500 mg|Thuốc tiêm truyền 10 mg/ml,4.402925725568479,mpm-relax,21.77
+paracetamol 80mg dat,tier2,3,N02BE01,"N02BE01 – paracetamol [Thuốc đặt 80 mg, Thuốc đặt 150 mg, Thuốc đặt 300 mg]",Thuốc đặt 80 mg|Thuốc đặt 150 mg|Thuốc đặt 300 mg,4.402925725568479,mpm-relax,21.77
+paracetamol 80mg dat,tier2,4,N06AF04,N06AF04 – TRANYLCYPROMINE [Viên nén 10 mg],Viên nén 10 mg,-8.7475941209114,mpm-relax,21.77
+paracetamol 80mg dat,tier2,5,N06AF04,N06AF04 – TRANYLCYPROMINE [Viên nén],Viên nén,-8.7475941209114,mpm-relax,21.77
+paracetamol 80mg dat,tier2,6,R05CB01,"R05CB01 – ACETYLCYSTEINE [Viên nén sủi 200 mg, Viên nén sủi 600 mg]",Viên nén sủi 200 mg|Viên nén sủi 600 mg,-8.959265825066153,mpm-relax,21.77
+paracetamol 80mg dat,tier2,7,R05CB01,"R05CB01 – ACETYLCYSTEINE [Viên nén 200 mg, Gói bột]",Viên nén 200 mg|Gói bột,-8.959265825066153,mpm-relax,21.77
+paracetamol 80mg dat,tier2,8,N04BX01,"N04BX01 – TOLCAPONE [Viên nén 100 mg, Viên nén 200 mg]",Viên nén 100 mg|Viên nén 200 mg,-9.047714333359936,mpm-relax,21.77
+paracetamol 80mg dat,tier2,9,N04BX01,"N04BX01 – TOLCAPONE [Viên nén 100 mg, Viên nén 200 mg]",Viên nén 100 mg|Viên nén 200 mg,-9.047714333359936,mpm-relax,21.77
+paracetamol 80mg dat,tier2,10,N06AB05,"N06AB05 – PAROXETINE [Viên nén 10 mg, Viên nén 20 mg, Viên nén 30 mg]",Viên nén 10 mg|Viên nén 20 mg|Viên nén 30 mg,-9.188977889773566,mpm-relax,21.77
+metformin 500,tier2,1,A10BA02,"A10BA02 – metf (METFORMIN) [Viên nén 500 mg, Viên nén 850 mg, Viên nén 1000 mg]",Viên nén 500 mg|Viên nén 850 mg|Viên nén 1000 mg,4.853259383654753,mpm,3.54
+metformin 500,tier2,2,A10BA02,"A10BA02 – metf (METFORMIN) [Viên nén 500 mg, Viên nén 850 mg, Viên nén 1000 mg]",Viên nén 500 mg|Viên nén 850 mg|Viên nén 1000 mg,4.853259383654753,mpm,3.54
+metformin 500,tier2,3,J01XD01,"J01XD01 – METRONIDAZOLE [Viên nén 250 mg, Viên nén 500 mg, Thuốc tiêm 500 mg/100 ml]",Viên nén 250 mg|Viên nén 500 mg|Thuốc tiêm 500 mg/100 ml,-1.7803929492535486,mpm,3.54
+metformin 500,tier2,4,J01XD01,"J01XD01 – METRONIDAZOLE [Viên nén 250 mg, Viên nén 500 mg, Thuốc tiêm 5 mg/ml]",Viên nén 250 mg|Viên nén 500 mg|Thuốc tiêm 5 mg/ml,-1.7803929492535486,mpm,3.54
+metformin 500,tier2,5,J01XD01,"J01XD01 – MISONIDAZOLE [Viên nén 100 mg, Thuốc tiêm]",Viên nén 100 mg|Thuốc tiêm,-1.7803929492535486,mpm,3.54
+metformin 500,tier2,6,J01XD01,"J01XD01 – METRONIDAZOLE [Viên nén 250 mg, Viên nén 500 mg]",Viên nén 250 mg|Viên nén 500 mg,-1.7803929492535486,mpm,3.54
+metformin 500,tier2,7,J01XD01,J01XD01 – METRONIDAZOLE [Thuốc tiêm 500 mg/100 ml],Thuốc tiêm 500 mg/100 ml,-1.7803929492535486,mpm,3.54
+metformin 500,tier2,8,J01XD01,J01XD01 – METRONIDAZOLE [Thuốc tiêm 500 mg/100 ml],Thuốc tiêm 500 mg/100 ml,-1.7803929492535486,mpm,3.54
+metformin 500,tier2,9,J01XD01,J01XD01 – METRONIDAZOLE [Dung dịch tiêm truyền 500 mg/100 ml],Dung dịch tiêm truyền 500 mg/100 ml,-1.7803929492535486,mpm,3.54
+metformin 500,tier2,10,J01XD01,J01XD01 – METRONIDAZOLE [Thuốc tiêm truyền],Thuốc tiêm truyền,-1.7803929492535486,mpm,3.54
+glucophage 850,tier2,1,A10BA02,"A10BA02 – glucophage (METFORMIN) [Viên nén 500 mg, Viên nén 850 mg, Viên nén 1000 mg]",Viên nén 500 mg|Viên nén 850 mg|Viên nén 1000 mg,2.397972933520964,mpm,1.54
+glucophage 850,tier2,2,A10BA02,"A10BA02 – glucophage (METFORMIN) [Viên nén 500 mg, Viên nén 850 mg, Viên nén 1000 mg]",Viên nén 500 mg|Viên nén 850 mg|Viên nén 1000 mg,2.397972933520964,mpm,1.54
+glucophage 850,tier2,3,A12AA07,A12AA07 – CALCIUM CHLORIDE [Dung dịch tiêm],Dung dịch tiêm,-8.511411864524199,mpm,1.54
+glucophage 850,tier2,4,B05AA05,B05AA05 – DEXTRAN 40 [Dung dịch tiêm truyền],Dung dịch tiêm truyền,-8.632626725077346,mpm,1.54
+glucophage 850,tier2,5,B05AA05,"B05AA05 – POLYMERS OF GLUCOSE [Dung dịch tiêm truyền 6%, Dung dịch tiêm truyền 10%]",Dung dịch tiêm truyền 6%|Dung dịch tiêm truyền 10%,-8.632626725077346,mpm,1.54
+glucophage 850,tier2,6,B05AA05,B05AA05 – DEXTRAN 40/70 [Dung dịch tiêm truyền],Dung dịch tiêm truyền,-8.632626725077346,mpm,1.54
+glucophage 850,tier2,7,B05AA05,B05AA05 – DEXTRAN [Dung dịch tiêm truyền],Dung dịch tiêm truyền,-8.632626725077346,mpm,1.54
+glucophage 850,tier2,8,B05AA05,B05AA05 – DEXTRAN [Dung dịch tiêm truyền],Dung dịch tiêm truyền,-8.632626725077346,mpm,1.54
+glucophage 850,tier2,9,B05AA05,B05AA05 – DEXTRAN [Dung dịch tiêm truyền 10%],Dung dịch tiêm truyền 10%,-8.632626725077346,mpm,1.54
+glucophage 850,tier2,10,M01AX05,"M01AX05 – GLUCOSAMINE [Viên nang 250 mg, Viên nang 500 mg]",Viên nang 250 mg|Viên nang 500 mg,-8.6832971958257,mpm,1.54
+amlo 5mg,tier2,1,L01BC08,L01BC08 – DECITABINE [Bột pha tiêm],Bột pha tiêm,-8.914710465845653,mpm,0.34
+amlo 5mg,tier2,2,L01BC08,L01BC08 – DECITABINE [Bột pha tiêm],Bột pha tiêm,-8.914710465845653,mpm,0.34
+amlo 5mg,tier2,3,L01XX58,"L01XX58 – GLASDEGIB [Viên nén 50 mg, Viên nén 100 mg]",Viên nén 50 mg|Viên nén 100 mg,-9.005564461185779,mpm,0.34
+amlo 5mg,tier2,4,L01XX58,"L01XX58 – GLASDEGIB [Viên nén 50 mg, Viên nén 100 mg]",Viên nén 50 mg|Viên nén 100 mg,-9.005564461185779,mpm,0.34
+coveram 5/5,tier2,1,C09AA04,"C09AA04 – PERINDOPRIL [Viên nén 2 mg, Viên nén 4 mg, Viên nén 8 mg]",Viên nén 2 mg|Viên nén 4 mg|Viên nén 8 mg,-9.264358705567817,mpm,0.41
+creon 25000,tier2,1,A09AA02,A09AA02 – creon (PANCREATIN),,0.742836313967109,mpm,0.72
+creon 25000,tier2,2,A09AA02,A09AA02 – creon (PANCREATIN),,0.742836313967109,mpm,0.72
+creon 25000,tier2,3,A09AA02,A09AA02 – creon (PANCRELIPASE),,0.742836313967109,mpm,0.72
+creon 25000,tier2,4,A09AA02,A09AA02 – creon (PANCRELIPASE) [Viên nang (Nhiều hàm lượng)],Viên nang (Nhiều hàm lượng),0.742836313967109,mpm,0.72
+creon 25000,tier2,5,A09AA02,A09AA02 – creon (PANCRELIPASE),,0.742836313967109,mpm,0.72
+creon 25000,tier2,6,J02AC05,J02AC05 – ISAVUCONAZOLE,,-8.912407594568585,mpm,0.72
+creon 25000,tier2,7,J02AC05,J02AC05 – ISAVUCONAZOLE,,-8.912407594568585,mpm,0.72
+creon 25000,tier2,8,D04AA10,D04AA10 – PROMETHAZINE [Kem bôi 2%],Kem bôi 2%,-9.248041446534721,mpm,0.72
+creon 25000,tier2,9,C10AA07,"C10AA07 – ROSUVASTATIN [Viên nén 5 mg, Viên nén 10 mg, Viên nén 20 mg, Viên nén 40 mg]",Viên nén 5 mg|Viên nén 10 mg|Viên nén 20 mg|Viên nén 40 mg,-9.440574919407258,mpm,0.72
+creon 25000,tier2,10,C10AA07,"C10AA07 – ROSUVASTATIN [Viên nén 5 mg, Viên nén 10 mg, Viên nén 20 mg, Viên nén 40 mg]",Viên nén 5 mg|Viên nén 10 mg|Viên nén 20 mg|Viên nén 40 mg,-9.440574919407258,mpm,0.72
+omeprazol 20,tier2,1,J01XX08,"J01XX08 – LINEZOLID [Viên nén 600 mg, Thuốc tiêm 2 mg/ml]",Viên nén 600 mg|Thuốc tiêm 2 mg/ml,-4.375336644350781,mpm-relax,13.64
+omeprazol 20,tier2,2,J01XX08,J01XX08 – LINEZOLID [Tương tự Linezolid (Lô 20)],Tương tự Linezolid (Lô 20),-4.375336644350781,mpm-relax,13.64
+omeprazol 20,tier2,3,J01XX08,"J01XX08 – LINEZOLID [Viên nén 600 mg, Thuốc tiêm truyền]",Viên nén 600 mg|Thuốc tiêm truyền,-4.375336644350781,mpm-relax,13.64
+omeprazol 20,tier2,4,J01AA12,J01AA12 – TIGECYCLINE [Bột pha tiêm 50 mg],Bột pha tiêm 50 mg,-4.629011507268995,mpm-relax,13.64
+omeprazol 20,tier2,5,J01AA12,J01AA12 – TIGECYCLINE [Tương tự Tigecycline (Lô 20)],Tương tự Tigecycline (Lô 20),-4.629011507268995,mpm-relax,13.64
+omeprazol 20,tier2,6,J05AB01,"J05AB01 – ACYCLOVIR [Viên nén 200 mg, Viên nén 400 mg, Thuốc tiêm 250 mg/5 ml]",Viên nén 200 mg|Viên nén 400 mg|Thuốc tiêm 250 mg/5 ml,-9.042344618061913,mpm-relax,13.64
+omeprazol 20,tier2,7,J05AB01,"J05AB01 – ACICLOVIR [Viên nén 200 mg, Viên nén 400 mg, Viên nén 800 mg, Thuốc tiêm 250 mg/10 ml]",Viên nén 200 mg|Viên nén 400 mg|Viên nén 800 mg|Thuốc tiêm 250 mg/10 ml,-9.042344618061913,mpm-relax,13.64
+omeprazol 20,tier2,8,J05AB01,J05AB01 – ACICLOVIR [Thuốc tiêm tĩnh mạch],Thuốc tiêm tĩnh mạch,-9.042344618061913,mpm-relax,13.64
+omeprazol 20,tier2,9,J01FA10,"J01FA10 – AZITHROMYCIN [Viên nén 250 mg, Viên nén 500 mg, Bột pha hỗn dịch 200 mg/5 ml]",Viên nén 250 mg|Viên nén 500 mg|Bột pha hỗn dịch 200 mg/5 ml,-9.309798622243664,mpm-relax,13.64
+omeprazol 20,tier2,10,J01FA10,"J01FA10 – AZITHROMYCIN [Viên nén 250 mg, Viên nén 500 mg, Hỗn dịch uống 200 mg/5 ml]",Viên nén 250 mg|Viên nén 500 mg|Hỗn dịch uống 200 mg/5 ml,-9.309798622243664,mpm-relax,13.64
+pantoloc 40,tier2,1,A02BC02,"A02BC02 – pantoloc (PANTOPRAZOLE) [Viên nén 20 mg, Viên nén 40 mg, Bột pha tiêm 40 mg]",Viên nén 20 mg|Viên nén 40 mg|Bột pha tiêm 40 mg,3.2061428324197667,mpm-relax,9.49
+pantoloc 40,tier2,2,M03AC02,"M03AC02 – PANCURONIUM [Thuốc tiêm 1 mg/ml, Thuốc tiêm 2 mg/ml]",Thuốc tiêm 1 mg/ml|Thuốc tiêm 2 mg/ml,-8.413539602133124,mpm-relax,9.49
+pantoloc 40,tier2,3,M03AC02,M03AC02 – PANCURONIUM [Thuốc tiêm],Thuốc tiêm,-8.413539602133124,mpm-relax,9.49
+pantoloc 40,tier2,4,M03AC02,M03AC02 – PANCURONIUM [Thuốc tiêm tĩnh mạch],Thuốc tiêm tĩnh mạch,-8.413539602133124,mpm-relax,9.49
+pantoloc 40,tier2,5,N02BE01,"N02BE01 – PARACETAMOL [Viên nén 500 mg, Viên nén 650 mg, Hỗn dịch uống 120 mg/5 ml]",Viên nén 500 mg|Viên nén 650 mg|Hỗn dịch uống 120 mg/5 ml,-8.864651055063886,mpm-relax,9.49
+pantoloc 40,tier2,6,N02BE01,"N02BE01 – ACETAMINOPHEN [Viên nén 500 mg, Thuốc tiêm truyền 10 mg/ml]",Viên nén 500 mg|Thuốc tiêm truyền 10 mg/ml,-8.864651055063886,mpm-relax,9.49
+pantoloc 40,tier2,7,N02BE01,"N02BE01 – ACETAMINOPHEN [Thuốc đặt 80 mg, Thuốc đặt 150 mg, Thuốc đặt 300 mg]",Thuốc đặt 80 mg|Thuốc đặt 150 mg|Thuốc đặt 300 mg,-8.864651055063886,mpm-relax,9.49
+pantoloc 40,tier2,8,A11HA04,A11HA04 – RIBOFLAVIN [Viên nén],Viên nén,-9.044560383883265,mpm-relax,9.49
+pantoloc 40,tier2,9,A11HA04,A11HA04 – BETA-CAROTENE [Viên nang],Viên nang,-9.044560383883265,mpm-relax,9.49
+pantoloc 40,tier2,10,A11HA04,A11HA04 – RIBOFLAVIN [Viên nén],Viên nén,-9.044560383883265,mpm-relax,9.49

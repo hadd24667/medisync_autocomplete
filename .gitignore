@@ -3,3 +3,4 @@ simcse_onnx/
 *.pt
 *.bin
 lgbm_atc_ranker.txt
+data/*

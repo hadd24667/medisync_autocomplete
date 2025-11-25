@@ -1,4 +1,3 @@
-version: '3.9'
 
 services:
   postgres:
@@ -12,12 +11,7 @@ services:
       POSTGRES_PASSWORD: 12345678
       POSTGRES_DB: medisync
     volumes:
-      - medisync_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+      - ./data/postgres:/var/lib/postgresql/data
     networks:
       - medisync-net
 
@@ -29,18 +23,9 @@ services:
       - "6379:6379"
     command: ["redis-server", "--appendonly", "yes"]
     volumes:
-      - redis_data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 5s
-      timeout: 3s
-      retries: 5
+      - ./data/redis:/data
     networks:
       - medisync-net
-
-volumes:
-  medisync_data:
-  redis_data:
 
 networks:
   medisync-net:

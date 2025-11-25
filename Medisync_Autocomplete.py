@@ -4,12 +4,17 @@ import re
 import string
 import pickle
 from collections import defaultdict
-
+import json
 import pandas as pd
 from sqlalchemy import create_engine
 from unidecode import unidecode
 import ast
 from rapidfuzz import process, fuzz
+from synonym_profile import (
+    normalize_text,
+    build_synonym_profiles,
+    pick_matched_syn_from_query,
+)
 
 # ============================================
 # 0. CONFIG
@@ -20,6 +25,35 @@ POSTGRES_URL = "postgresql://postgres:12345678@localhost:5432/medisync"
 # File cache index (để khởi động nhanh hơn)
 PERSIST_ICD_FILE = "smartemr_tier1_icd11_index.pkl"
 PERSIST_ATC_FILE = "smartemr_tier1_atc_index.pkl"
+ATC_META_FILE = "atc_synonyms_meta_cleaned.json" 
+
+def load_atc_metadata(path: str):
+    """
+    Load metadata tầng 2 cho ATC từ JSON:
+    { "N02BE01": { ... }, ... }
+    → map về dict key là atc_code lower-case
+      + tự sinh synonym_profiles.
+    """
+    if not os.path.exists(path):
+        print(f"⚠️ ATC metadata file not found: {path}")
+        return {}
+
+    with open(path, "r", encoding="utf-8") as f:
+        raw = json.load(f)
+
+    meta_by_code = {}
+    for code, meta in raw.items():
+        if not code:
+            continue
+
+        meta = meta or {}
+        # sinh synonym_profiles từ inn + brand + synonyms
+        meta["synonym_profiles"] = build_synonym_profiles(code, meta)
+
+        meta_by_code[code.lower()] = meta
+
+    print(f"💊 Loaded ATC metadata JSON: {len(meta_by_code):,} codes")
+    return meta_by_code
 
 
 # ============================================
@@ -75,6 +109,70 @@ def make_fingerprint(text: str) -> int:
             bits |= 1 << (ord(ch) - ord("a"))
     return bits
 
+def _choose_canonical_inn(inn_raw: str) -> str:
+    """
+    Chọn 1 INN 'đẹp' nhất từ chuỗi inn_raw (phân tách bởi dấu phẩy).
+    Ưu tiên dạng ngắn, không ngoặc.
+    """
+    if not inn_raw:
+        return ""
+
+    inns = [s.strip() for s in inn_raw.split(",") if s.strip()]
+    if not inns:
+        return ""
+
+    cleaned = []
+    for inn in inns:
+        base = re.sub(r"\(.*?\)", "", inn).strip()
+        cleaned.append(base if base else inn)
+
+    # chọn cái ngắn nhất
+    return min(cleaned, key=len)
+
+
+def choose_display_name(code: str, matched_syn: str | None, meta: dict) -> str:
+    """
+    Chọn tên hiển thị động cho 1 kết quả ATC.
+
+    - Nếu có matched_syn và có trong synonym_profiles:
+        + source = 'inn'  → hiển thị chính inn đó
+        + source = 'brand'→ hiển thị Brand (InnCanonical)
+        + source = 'code' → rơi về canonical
+    - Nếu không có matched_syn → dùng canonical inn.
+    """
+    inn_raw = meta.get("inn_raw") or ""
+    profiles = meta.get("synonym_profiles") or {}
+
+    # chuẩn hoá matched_syn
+    key = None
+    if matched_syn:
+        key = unidecode(matched_syn.lower().strip())
+
+    if key and key in profiles:
+        prof = profiles[key]
+        source = prof.get("source")
+        value = prof.get("value") or ""
+
+        inn_canon = _choose_canonical_inn(inn_raw)
+
+        if source == "brand":
+            # ví dụ: "Efferalgan (Paracetamol)"
+            if inn_canon:
+                return f"{value} ({inn_canon})"
+            return value or inn_canon or code
+
+        if source == "inn":
+            # ví dụ: "Paracetamol" / "Acetaminophen"
+            return value or inn_canon or code
+
+        # source == "code" hoặc gì đó khác → fallback
+        if inn_canon:
+            return inn_canon
+        return value or code
+
+    # Không có matched_syn hoặc không tìm được profile → canonical cố định
+    inn_canon = _choose_canonical_inn(inn_raw)
+    return inn_canon or meta.get("label") or code
 
 # ============================================
 # 2. CORE ENGINE
@@ -206,16 +304,46 @@ class Tier1AutocompleteEngine:
     # -----------------------------
     @staticmethod
     def _mpm_score(query_tokens, term_tokens):
-        m, n = len(query_tokens), len(term_tokens)
-        if n == 0:
+        """
+        Multi-Prefix-Matching score.
+        Thuật toán ưu tiên:
+        - Match prefix ngắn, gần giống hơn
+        - Phạt từ dài
+        - Phạt số lượng token nhiều
+        - Thưởng match liên tục
+        """
+        if not term_tokens:
             return 0.0
-        score_sum = 0.0
+
+        score = 0.0
+
         for q in query_tokens:
+            best = 0.0
+
             for t in term_tokens:
+                # prefix match mạnh
                 if t.startswith(q):
-                    score_sum += len(q) / max(len(t), 1)
-                    break
-        return score_sum / n
+                    # phần thưởng: match càng gần -> càng cao
+                    hit = len(q) / len(t)
+
+                    # phạt từ dài: t càng dài – penalize giảm
+                    hit *= 1 / (1 + (len(t) - len(q)) * 0.4)
+
+                else:
+                    # không prefix: fuzzy (bonus rất nhẹ)
+                    from rapidfuzz.fuzz import partial_ratio
+                    pr = partial_ratio(q, t) / 100
+                    hit = pr * 0.2      # fuzzy cap thấp
+
+                best = max(best, hit)
+
+            score += best
+
+        # phạt theo số lượng token của term
+        score = score / (len(term_tokens) ** 0.8)
+
+        return score
+
 
     def _mpm_optimized(self, query_tokens):
         # B1: lấy candidate set cho từng token từ inverted index
@@ -334,7 +462,11 @@ class Tier1AutocompleteEngine:
     # -----------------------------
     # 2.4. Format kết quả cho UI
     # -----------------------------
-    def _format_results(self, idx_list):
+    def _format_results(self, idx_list, matched_syn=None):
+        """
+        Format kết quả hiển thị.
+        matched_syn: chuỗi synonym mà user đã gõ (nếu có)
+        """
         results = []
         for i in idx_list:
             meta = self.meta_by_index[i]
@@ -342,29 +474,46 @@ class Tier1AutocompleteEngine:
 
             t_type = meta.get("type")
             code = meta.get("code", "")
-            label = meta.get("label", "")  # tên hiển thị chính (VN/INN)
-            desc = meta.get("description", "")  # mô tả thêm (EN / class / ...)
+            desc = meta.get("description", "")
 
-            # forms chỉ dùng cho ATC
+            # -----------------------------
+            #  CHỌN LABEL HIỂN THỊ (DYNAMIC)
+            # -----------------------------
+            if t_type == "ATC":
+                # dynamic: canonical tùy vào synonym match
+                display_name = choose_display_name(
+                    code=code,
+                    matched_syn=matched_syn,
+                    meta=meta
+                )
+            else:
+                # ICD11 giữ nguyên
+                display_name = meta.get("label", "")
+
+            # -----------------------------
+            #  FORMAT FORMS (nếu là ATC)
+            # -----------------------------
             forms = meta.get("forms") or []
             forms_str = ", ".join(forms) if forms else ""
 
-            display = f"{code} – {label}".strip(" –")
+            display = f"{code} – {display_name}".strip(" –")
             if t_type == "ATC" and forms_str:
                 display = f"{display} [{forms_str}]"
 
             results.append(
                 {
-                    "type": t_type,        # 'ICD11' hoặc 'ATC'
+                    "type": t_type,
                     "code": code,
-                    "label": label,
+                    "label": display_name,      # tên hiển thị mới
                     "description": desc,
                     "forms": forms,
                     "display": display,
+                    "matched_syn": matched_syn,   # để FE debug
                     "raw_term": term,
                 }
             )
         return results
+
 
     # -----------------------------
     # 2.5. Public API
@@ -429,12 +578,18 @@ class Tier1AutocompleteEngine:
             idxs = self._fuzzy_fallback(query_norm)
             source = "fuzzy"
 
-        results = self._format_results(idxs)
+        # lấy "synonym" mà user gõ – tạm thời dùng token đầu tiên
+        matched_syn = None
+        tokens_for_syn = normalize_query(query)
+        if tokens_for_syn:
+            matched_syn = tokens_for_syn[0]
+
+        results = self._format_results(idxs, matched_syn=matched_syn)
         self.cache[query_norm] = results
+
 
         latency = round((time.time() - t0) * 1000, 2)
         return results, source, latency
-
 
 
 # ============================================
@@ -531,7 +686,7 @@ def parse_pg_array(val):
     return [x for x in items if x]
 
 
-def load_atc_terms(engine):
+def load_atc_terms(engine, atc_meta_by_code):
 
     sql = """
         SELECT
@@ -554,10 +709,12 @@ def load_atc_terms(engine):
 
     for _, row in df.iterrows():
         code = (row["atc_code"] or "").strip()
+        if not code:
+            continue
+
         inn = (row["inn"] or "").strip()
         inn_clean = (row["inn_clean"] or "").strip()
 
-        # ===== PARSE TEXT[] FROM POSTGRES =====
         forms = parse_pg_array(row["forms"])
         forms_clean = parse_pg_array(row["forms_clean"])
         brands = parse_pg_array(row["brand_names"])
@@ -566,20 +723,24 @@ def load_atc_terms(engine):
         drug_class = (row["drug_class"] or "").strip()
         drug_class_clean = (row["drug_class_clean"] or "").strip()
 
-        # ===== LABEL (hiển thị FE) =====
+        # 🔹 lấy metadata tầng 2 nếu có
+        meta_json = atc_meta_by_code.get(code.lower(), {})
+        synonyms = meta_json.get("synonyms", []) or []
+        synonym_profiles = meta_json.get("synonym_profiles", {}) or {}
+
+        # label hiển thị tạm thời (phase 1, canonical sau)
         label = inn
         if brands:
             label = f"{inn} ({', '.join(brands)})"
 
-        # ===== SEARCH BASE =====
+        # search_base cho tầng 1 (đã có syn)
         brands_clean_str = " ".join(brands_clean)
-        # forms_clean_str = " ".join(forms_clean)
+        syn_str = " ".join(unidecode(s.lower()) for s in synonyms)
 
-        search_base = f"{inn_clean} {drug_class_clean} {brands_clean_str}".strip()
+        search_base = f"{inn_clean} {drug_class_clean} {brands_clean_str} {syn_str}".strip()
         search_base = unidecode(search_base.lower())
 
         term_str = f"{code} {search_base}".strip()
-
         all_terms.append(term_str)
 
         meta.append({
@@ -587,11 +748,17 @@ def load_atc_terms(engine):
             "code": code,
             "label": label,
             "description": drug_class,
-            "forms": forms
+            "forms": forms,
+            # để dành cho Phase 2:
+            "synonyms": synonyms,
+            "synonym_profiles": synonym_profiles,
+            "inn_raw": inn,
         })
 
     print(f"💊 Loaded ATC terms: {len(all_terms):,}")
     return all_terms, meta
+
+
 
 
 # ============================================
@@ -601,9 +768,12 @@ def load_atc_terms(engine):
 # tạo engine DB
 _db_engine = create_engine(POSTGRES_URL)
 
+# load metadata ATC tầng 2 từ JSON
+_atc_meta_json = load_atc_metadata(ATC_META_FILE)
+
 # load vocab từ DB
 _icd_terms, _icd_meta = load_icd11_terms(_db_engine)
-_atc_terms, _atc_meta = load_atc_terms(_db_engine)
+_atc_terms, _atc_meta = load_atc_terms(_db_engine, _atc_meta_json)
 
 # tạo 2 engine tầng 1
 icd_engine = Tier1AutocompleteEngine(

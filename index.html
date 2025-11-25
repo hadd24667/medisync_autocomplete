@@ -2,43 +2,49 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <title>SmartEMR Autocomplete Tailwind</title>
+  <title>MaiDiSe Smart Autocomplete</title>
   <script src="https://cdn.tailwindcss.com"></script>
 </head>
 
 <body class="bg-gray-100 min-h-screen flex justify-center py-12">
 
-<div class="w-full max-w-2xl bg-white rounded-xl shadow-lg p-8">
+<div class="w-full max-w-2xl bg-white rounded-2xl shadow-xl p-8">
 
-  <h2 class="text-2xl font-bold text-blue-700 mb-6">
-    🧠 MaiDiSe Autocomplete – ICD + ATC
+  <h2 class="text-3xl font-bold text-blue-700 mb-6 text-center">
+    🧠 MaiDiSe – Smart Autocomplete
   </h2>
 
   <!-- Input row -->
-  <div class="flex gap-3 mb-4">
-    
-    <select id="type"
-            class="px-3 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400">
-      <option value="icd">ICD-11</option>
-      <option value="atc">ATC / Thuốc</option>
-    </select>
+  <div class="flex gap-3 mb-5 items-center">
+
+    <!-- Toggle type -->
+    <div class="flex bg-gray-200 rounded-full p-1">
+      <button id="btnICD"
+              class="px-4 py-2 text-sm rounded-full font-semibold bg-white shadow">
+        ICD-11
+      </button>
+      <button id="btnATC"
+              class="px-4 py-2 text-sm rounded-full font-semibold text-gray-600 hover:text-gray-800">
+        ATC / Thuốc
+      </button>
+    </div>
 
     <input id="search"
            placeholder="Nhập tên bệnh / thuốc..."
-           class="flex-1 px-4 py-2 border rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400" />
+           class="flex-1 px-4 py-2 border rounded-xl shadow-sm focus:ring-2 focus:ring-blue-400 bg-gray-50" />
 
     <button id="clearCache"
-            class="px-4 py-2 bg-red-500 text-white rounded-lg shadow hover:bg-red-600 font-semibold">
-      🧹 Xóa cache
+            class="px-4 py-2 bg-red-500 text-white rounded-xl shadow hover:bg-red-600 font-semibold">
+      🧹
     </button>
   </div>
 
   <!-- Info -->
-  <div id="info" class="text-sm text-gray-500 mb-2"></div>
+  <div id="info" class="text-sm text-gray-600 mb-3"></div>
 
   <!-- Results -->
   <ul id="results"
-      class="divide-y divide-gray-200 border rounded-xl bg-white shadow max-h-96 overflow-y-auto">
+      class="divide-y divide-gray-200 border rounded-2xl bg-white shadow max-h-96 overflow-y-auto">
   </ul>
 
 </div>
@@ -46,11 +52,30 @@
 
 <script>
 const search = document.getElementById("search");
-const type = document.getElementById("type");
 const results = document.getElementById("results");
 const info = document.getElementById("info");
 
+let mode = "icd";
 let timer;
+
+// toggle buttons
+document.getElementById("btnICD").onclick = () => {
+  mode = "icd";
+  document.getElementById("btnICD").className =
+    "px-4 py-2 text-sm rounded-full font-semibold bg-white shadow";
+  document.getElementById("btnATC").className =
+    "px-4 py-2 text-sm rounded-full font-semibold text-gray-600 hover:text-gray-800";
+  runAutocomplete();
+};
+
+document.getElementById("btnATC").onclick = () => {
+  mode = "atc";
+  document.getElementById("btnATC").className =
+    "px-4 py-2 text-sm rounded-full font-semibold bg-white shadow";
+  document.getElementById("btnICD").className =
+    "px-4 py-2 text-sm rounded-full font-semibold text-gray-600 hover:text-gray-800";
+  runAutocomplete();
+};
 
 // debounce input
 search.addEventListener("input", () => {
@@ -62,26 +87,37 @@ async function runAutocomplete() {
   let q = search.value.trim();
   if (!q) { results.innerHTML = ""; info.innerHTML = ""; return; }
 
-  let mode = type.value;
-
   const res = await fetch(
     `http://127.0.0.1:5000/autocomplete?q=${encodeURIComponent(q)}&type=${mode}`
   );
+
   const data = await res.json();
 
-  info.textContent = `⏱ ${data.latency_ms} ms • Source: ${data.source} • ${data.results.length} kết quả`;
+  info.innerHTML = `
+    ⏱ <b>${data.tier1_latency_ms || data.latency_ms} ms</b> •
+    Source: <b>${data.tier1_source || data.source}</b> •
+    Tier-2: <b>${data.tier2_used ? "ON" : "OFF"}</b>
+  `;
 
   results.innerHTML = data.results
     .map(r => `
-      <li class="p-3 hover:bg-blue-50 cursor-pointer">
-        <div class="flex justify-between">
-          <span class="font-semibold text-blue-700">${r.code}</span>
-          <span class="text-gray-500 text-sm">${r.type}</span>
+      <li class="p-4 hover:bg-blue-50 cursor-pointer transition">
+        <div class="flex justify-between items-center">
+          
+          <span class="font-bold text-blue-700 text-lg">${r.code}</span>
+
+          ${r.score !== undefined ?
+            `<span class="text-xs bg-green-100 text-green-700 px-2 py-1 rounded-full shadow">Score: ${r.score.toFixed(3)}</span>`
+            : ""
+          }
         </div>
-        <div class="text-gray-900">${r.label}</div>
-        ${r.forms?.length ? 
-            `<div class="text-sm text-gray-600 mt-1">${r.forms.join(", ")}</div>` 
+
+        <div class="text-gray-800 mt-1">${r.label}</div>
+
+        ${r.forms?.length ?
+          `<div class="text-sm text-gray-600 mt-1">${r.forms.join(", ")}</div>` 
         : "" }
+
       </li>
     `)
     .join("");
